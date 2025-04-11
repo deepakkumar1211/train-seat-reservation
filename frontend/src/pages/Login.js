@@ -17,40 +17,78 @@ function Login() {
   };
 
   // Handle form submission
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault(); // Prevent default form refresh
+
+  //   try {
+  //     // Send login request to backend API
+  //     const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/auth/login`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(form), // Send email and password
+  //     });
+
+  //     const data = await response.json();
+
+  //     // Handle failed login
+  //     if (!response.ok) {
+  //       throw new Error(data.message || "Login failed");
+  //     }
+
+  //     // Store token and user info in localStorage
+  //     localStorage.setItem("token", data.token);
+  //     localStorage.setItem("user", JSON.stringify(data.user));
+      
+  //     setUsername(data.user.username); // Show username in success message
+  //     setSuccess(true); // Trigger success UI
+
+  //     // Redirect to home page after delay
+  //     setTimeout(() => {
+  //       navigate("/");
+  //     }, 1500);
+  //   } catch (err) {
+  //     // Display error message
+  //     setError(err.message);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form refresh
-
+  
     try {
-      // Send login request to backend API
-      const response = await fetch("http://localhost:5000/api/v1/auth/login", {
+      const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(form), // Send email and password
       });
-
-      const data = await response.json();
-
-      // Handle failed login
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+  
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        throw new Error("Oops! The server returned something unexpected. Please try again in a moment.");
       }
-
-      // Store token and user info in localStorage
+  
+      if (!response.ok) {
+        throw new Error(data.message || "Hmm... we couldn't log you in. Please double-check your credentials.");
+      }
+  
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      
+  
       setUsername(data.user.username); // Show username in success message
       setSuccess(true); // Trigger success UI
-
-      // Redirect to home page after delay
+  
       setTimeout(() => {
         navigate("/");
       }, 1500);
     } catch (err) {
-      // Display error message
-      setError(err.message);
+      // Fancy error message
+      setError(err.message || "Something went wrong! Try refreshing or check back later.");
     }
   };
 

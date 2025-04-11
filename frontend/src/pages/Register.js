@@ -20,7 +20,7 @@ function Register() {
     e.preventDefault();
     try {
       // Make POST request to backend API
-      const res = await fetch("http://localhost:5000/api/v1/auth/register", {
+      const res = await fetch(`${process.env.BACKEND_API_URL}/api/v1/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
