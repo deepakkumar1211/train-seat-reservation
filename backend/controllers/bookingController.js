@@ -126,5 +126,4 @@ const cancelBooking = async (req, res) => {
 };
 
 
-
 module.exports = { getSeats, bookSeats, resetSeats,cancelBooking };
