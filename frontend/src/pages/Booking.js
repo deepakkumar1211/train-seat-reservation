@@ -37,7 +37,7 @@ export default function Booking() {
   // Fetch seats from API
   const fetchSeats = async () => {
     try {
-      const res = await fetch(`${process.env.BACKEND_API_URL}/api/v1/seats/seats`);
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/seats/seats`);
       const data = await res.json();
       setSeats(data);
     } catch (err) {
@@ -54,7 +54,7 @@ export default function Booking() {
     setMessage("");
 
     try {
-      const res = await fetch(`${process.env.BACKEND_API_URL}/api/v1/seats/book`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/seats/book`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export default function Booking() {
   // Cancel user's booking
   const cancelBooking = async () => {
     try {
-      const res = await fetch(`${process.env.BACKEND_API_URL}/api/v1/seats/cancel`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/seats/cancel`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ export default function Booking() {
   // Reset all bookings (admin-like)
   const resetSeats = async () => {
     try {
-      const res = await fetch(`${process.env.BACKEND_API_URL}/api/v1/seats/reset`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/seats/reset`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

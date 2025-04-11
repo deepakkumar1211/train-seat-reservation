@@ -58,7 +58,7 @@ function Login() {
     e.preventDefault(); // Prevent default form refresh
   
     try {
-      const response = await fetch(`${process.env.BACKEND_API_URL}/api/v1/auth/login`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
