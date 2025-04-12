@@ -97,13 +97,6 @@ npm install
 - Error handling middleware
 - Environment-based config
 
----
-
-## 🎥 Demo Video
-
-👉 [Link to Presentation Video](https://your-demo-link.com)
-
-Make sure your **camera is on** and you're explaining **both frontend and backend** functionalities.
 
 ---
 
@@ -111,7 +104,7 @@ Make sure your **camera is on** and you're explaining **both frontend and backen
 
 **Deepak Kumar Sahu**  
 MERN Stack Developer  
-[GitHub]([https://github.com/your-username](https://github.com/deepakkumar1211)) • [LinkedIn]([https://linkedin.com/in/your-profile](https://www.linkedin.com/in/deepak-kumar-sahu12)) • [Portfolio]([https://deepaksahu.vercel.app](https:deepaksahu.vercel.app))
+[GitHub](https://github.com/deepakkumar1211) • [LinkedIn](https://www.linkedin.com/in/deepak-kumar-sahu12) • [Portfolio](https://deepaksahu.vercel.app)
 
 
 ---
