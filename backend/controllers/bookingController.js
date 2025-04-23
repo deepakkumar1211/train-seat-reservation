@@ -10,8 +10,9 @@ const getSeats = async (req, res) => {
   }
 };
 
+const { pool } = require("../db/db");
 
-// Book seats intelligently (1 to 7 seats in same row if possible, else nearby)
+// Book seats intelligently (1 to 7 seats in same row if possible, else from nearby rows)
 const bookSeats = async (req, res) => {
   const { numberOfSeats } = req.body;
   const userId = req.user.id;
@@ -30,7 +31,6 @@ const bookSeats = async (req, res) => {
       return res.status(400).json({ message: "Not enough seats available" });
     }
 
-    // Group seats by row
     const groupedByRow = {};
     for (const seat of availableSeats) {
       if (!groupedByRow[seat.row_number]) groupedByRow[seat.row_number] = [];
@@ -39,7 +39,7 @@ const bookSeats = async (req, res) => {
 
     let seatsToBook = [];
 
-    // Try to find N consecutive seats in the same row
+    // Try to find all seats in the same row
     outer: for (const row in groupedByRow) {
       const seats = groupedByRow[row];
 
@@ -56,51 +56,51 @@ const bookSeats = async (req, res) => {
       }
     }
 
-    // If not found in same row, try to get best nearby seats
+    // If not found in a single row, pick nearby rows with lowest row gap
     if (seatsToBook.length === 0) {
-      const seatClusters = [];
+      const rows = Object.keys(groupedByRow).map(Number).sort((a, b) => a - b);
 
-      for (const row in groupedByRow) {
-        const rowSeats = groupedByRow[row];
-        for (let i = 0; i < rowSeats.length; i++) {
-          let cluster = [rowSeats[i]];
+      let minGapCombo = null;
+      let minGap = Infinity;
 
-          for (let j = i + 1; j < rowSeats.length && cluster.length < numberOfSeats; j++) {
-            if (rowSeats[j].seat_number === cluster[cluster.length - 1].seat_number + 1) {
-              cluster.push(rowSeats[j]);
-            }
-          }
-
-          if (cluster.length === numberOfSeats) {
-            seatsToBook = cluster;
-            break;
-          } else if (cluster.length > 1) {
-            seatClusters.push(cluster);
+      const generateCombinations = (rows, k, start = 0, combo = []) => {
+        if (combo.length >= 1 && combo.reduce((sum, r) => sum + groupedByRow[r].length, 0) >= numberOfSeats) {
+          const sortedCombo = [...combo].sort((a, b) => a - b);
+          const gap = sortedCombo[sortedCombo.length - 1] - sortedCombo[0];
+          if (gap < minGap) {
+            minGap = gap;
+            minGapCombo = [...combo];
           }
         }
 
-        if (seatsToBook.length) break;
-      }
+        for (let i = start; i < rows.length; i++) {
+          combo.push(rows[i]);
+          generateCombinations(rows, k, i + 1, combo);
+          combo.pop();
+        }
+      };
 
-      // Pick best partial cluster and fill rest
-      if (!seatsToBook.length && seatClusters.length) {
-        const bestCluster = seatClusters.reduce((a, b) => (a.length > b.length ? a : b));
-        const remaining = numberOfSeats - bestCluster.length;
+      generateCombinations(rows, numberOfSeats);
 
-        const remainingSeats = availableSeats.filter(
-          s => !bestCluster.some(b => b.id === s.id)
-        ).slice(0, remaining);
-
-        seatsToBook = [...bestCluster, ...remainingSeats];
-      }
-
-      // Final fallback
-      if (!seatsToBook.length) {
-        seatsToBook = availableSeats.slice(0, numberOfSeats);
+      if (minGapCombo) {
+        let count = 0;
+        for (const row of minGapCombo.sort((a, b) => a - b)) {
+          const seats = groupedByRow[row];
+          for (const seat of seats) {
+            if (count >= numberOfSeats) break;
+            seatsToBook.push(seat);
+            count++;
+          }
+          if (count >= numberOfSeats) break;
+        }
       }
     }
 
-    // Book the selected seats
+    if (seatsToBook.length === 0) {
+      return res.status(400).json({ message: "No suitable seats found" });
+    }
+
+    // Book the seats
     await Promise.all(
       seatsToBook.map(seat =>
         pool.query(
@@ -110,7 +110,6 @@ const bookSeats = async (req, res) => {
       )
     );
 
-    // Fetch the updated seats
     const bookedIds = seatsToBook.map(seat => seat.id);
     const updatedSeats = await pool.query(
       "SELECT * FROM seats WHERE id = ANY($1)",
@@ -123,6 +122,8 @@ const bookSeats = async (req, res) => {
     res.status(500).json({ message: "Booking failed" });
   }
 };
+
+
 
 const resetSeats = async (req, res) => {
   try {
