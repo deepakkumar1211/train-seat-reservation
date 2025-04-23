@@ -10,7 +10,6 @@ const getSeats = async (req, res) => {
   }
 };
 
-const { pool } = require("../db/db");
 
 // Book seats intelligently (1 to 7 seats in same row if possible, else from nearby rows)
 const bookSeats = async (req, res) => {
