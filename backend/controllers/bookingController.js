@@ -17,7 +17,7 @@ const bookSeats = async (req, res) => {
   const userId = req.user.id;
 
   if (!numberOfSeats || numberOfSeats < 1 || numberOfSeats > 7) {
-    return res.status(400).json({ message: "You must select 1 to 7 seats" });
+    return res.status(400).json({ message: "⚠️ You must select 1 to 7 seats" });
   }
 
   try {
@@ -27,7 +27,7 @@ const bookSeats = async (req, res) => {
     const availableSeats = result.rows;
 
     if (availableSeats.length < numberOfSeats) {
-      return res.status(400).json({ message: "Not enough seats available" });
+      return res.status(400).json({ message: `⚠️ Booking Failed. Only ${availableSeats.length} available to book ` });
     }
 
     const groupedByRow = {};
@@ -115,7 +115,7 @@ const bookSeats = async (req, res) => {
       [bookedIds]
     );
 
-    res.json({ message: "Seats booked successfully", seats: updatedSeats.rows });
+    res.json({ message: "✅ Seats Booked Successfully", seats: updatedSeats.rows });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Booking failed" });
@@ -127,7 +127,7 @@ const bookSeats = async (req, res) => {
 const resetSeats = async (req, res) => {
   try {
     await pool.query("UPDATE seats SET is_reserved = false, user_id = NULL");
-    res.json({ message: "Seats reset" });
+    res.json({ message: "Booking Successfully Reset" });
   } catch (err) {
     res.status(500).json({ message: "Failed to reset seats" });
   }
